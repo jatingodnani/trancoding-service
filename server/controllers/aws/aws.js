@@ -15,7 +15,7 @@ const ecsClient = new ECSClient({
   credentials: fromEnv(),
 });
 
-const startEcsTask = async (inputFileKey, outputDir) => {
+const startEcsTask = async (inputFileKey, outputDir, uid) => {
   const params = {
     cluster: process.env.AWS_ECS_CLUSTER_NAME,
     taskDefinition: process.env.AWS_ECS_TASK_DEFINITION_NAME,
@@ -39,6 +39,10 @@ const startEcsTask = async (inputFileKey, outputDir) => {
             {
               name: "OUTPUT_DIRECTORY",
               value: outputDir,
+            },
+            {
+              name: "USER_ID",
+              value: uid,
             },
           ],
         },
@@ -90,6 +94,7 @@ const deleteS3File = async (path) => {
 
 const uploadAsset = async (req, res) => {
   const file = req.file;
+  const uid = req.body.uid;
   const bucket = process.env.AWS_INPUT_BUCKET_NAME;
   const key = file.originalname;
   const s3Client = new S3Client({ region: process.env.AWS_REGION });
@@ -112,7 +117,7 @@ const uploadAsset = async (req, res) => {
     try {
       // Start ECS task
       const outputDir = "transcoded-videos/";
-      await startEcsTask(key, outputDir);
+      await startEcsTask(key, outputDir, uid);
       console.log(`${key} ecs task started`);
     } catch (error) {
       // couldn't start task
