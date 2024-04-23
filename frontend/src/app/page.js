@@ -5,14 +5,14 @@ import { currentUser } from "@clerk/nextjs";
 
 export default function Home() {
  
-async function current(){
-  const user=await currentUser();
- console.log(user)
+// async function current(){
+//   const user=await currentUser();
+//  console.log(user)
 
 
-}
+// }
 
-current();
+// current();
 
 
   return (
