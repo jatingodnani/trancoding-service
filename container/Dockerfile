@@ -6,8 +6,7 @@ WORKDIR /app
 
 COPY ./app.py .
 COPY ./requirements.txt .
-# COPY ./app-dev.py .
-# COPY ./video.mp4 .
+# COPY . .
 
 
 # Install any needed packages specified in requirements.txt
@@ -21,8 +20,8 @@ EXPOSE 8000
 ENV INPUT_BUCKET_NAME="jat-twitter-dev"
 ENV OUTPUT_BUCKET_NAME="jat-twitter-dev"
 ENV INPUT_FILE_KEY="video.mp4"
-ENV OUTPUT_DIRECTORY=""
-ENV USER_ID=""
+ENV OUTPUT_DIRECTORY="transcoding-videos/"
+ENV ASSET_ID="aid"
 
 # CMD ["python", "app-dev.py"]
 CMD ["python", "app.py"]
