@@ -2,20 +2,15 @@
 
 
 import { currentUser } from "@clerk/nextjs";
+import Home from "../../component/home/Home";
 
-export default function Home() {
- 
-// async function current(){
-//   const user=await currentUser();
-//  console.log(user)
+export default function Page() {
 
-
-// }
-
-// current();
 
 
   return (
-    <h1>trancoding</h1>
+    <div className="w-full">
+      <Home/>
+    </div>
   );
 }
