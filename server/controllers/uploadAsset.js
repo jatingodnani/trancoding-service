@@ -5,13 +5,27 @@ const {
 const { createAssetItem } = require("../constants/services/dynamoService");
 const { startEcsTask } = require("../constants/services/ecsService");
 const { v4: uuidv4 } = require("uuid");
-const { deleteServerFile } = require("../constants/utils");
+const {
+  deleteServerFile,
+  getMimeTypeExtension,
+} = require("../constants/utils");
 const config = require("../constants/config");
 
 const uploadAsset = async (req, res) => {
   const file = req.file;
   const uid = req.body.uid;
-  const key = file.originalname;
+  const fileName = file.originalname;
+  const aid = uuidv4(); // Generate a new UUID
+  const fileMime = getMimeTypeExtension(file);
+  const key = aid + fileMime;
+
+  // Check if file type is supported
+  if (fileMime == null) {
+    res.status(500).json({
+      message: "File type not supported",
+    });
+    return;
+  }
 
   try {
     // Upload file to S3
@@ -19,12 +33,10 @@ const uploadAsset = async (req, res) => {
     deleteServerFile(file.path);
 
     // Attempt to create the asset item in DynamoDB
-    const aid = uuidv4(); // Generate a new UUID
     await createAssetItem(aid, uid);
 
     // Start ECS task
-    const outputDir = config.outputBucketDirectory;
-    await startEcsTask(key, uid, aid);
+    await startEcsTask(uid, aid, fileMime);
     console.log(`${key} ECS task started`);
 
     // If everything succeeded

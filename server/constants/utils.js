@@ -6,6 +6,18 @@ const deleteServerFile = (path) => {
     else console.log(`${path} deleted from node server`);
   });
 };
+
+const getMimeTypeExtension = (file) => {
+  const extensionMap = {
+    "video/mp4": ".mp4",
+    "video/webm": ".webm",
+    "video/quicktime": ".mov",
+    "video/x-matroska": ".mkv",
+  };
+  if (!extensionMap[file.mimetype]) return null;
+  return extensionMap[file.mimetype];
+};
 module.exports = {
   deleteServerFile,
+  getMimeTypeExtension,
 };

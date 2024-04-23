@@ -5,6 +5,7 @@ const {
 } = require("@aws-sdk/client-s3");
 const config = require("../config");
 const fs = require("fs");
+const { getMimeTypeExtension } = require("../utils");
 
 const s3Client = new S3Client({ region: config.awsRegion });
 

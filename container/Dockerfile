@@ -12,16 +12,14 @@ COPY ./requirements.txt .
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# RUN ffmpeg -i video.mp4 -vf scale=1280:720 -preset slow -crf 18 output.mp4
-
-
-EXPOSE 8000
-
 ENV INPUT_BUCKET_NAME="jat-twitter-dev"
 ENV OUTPUT_BUCKET_NAME="jat-twitter-dev"
-ENV INPUT_FILE_KEY="video.mp4"
+# ENV INPUT_FILE_KEY="video.mp4"
 ENV OUTPUT_DIRECTORY="transcoding-videos/"
 ENV ASSET_ID="aid"
+ENV USER_ID="uid"
+ENV FILE_MIME_TYPE=".mp4"
 
-# CMD ["python", "app-dev.py"]
+# CMD tail -f /dev/null
 CMD ["python", "app.py"]
+

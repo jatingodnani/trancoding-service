@@ -6,14 +6,14 @@ const ecsClient = new ECSClient({
   credentials: fromEnv(),
 });
 
-const startEcsTask = async (inputFileKey, uid, aid) => {
+const startEcsTask = async (uid, aid, mime) => {
   const environment = [
     { name: "INPUT_BUCKET_NAME", value: config.inputBucketName },
     { name: "OUTPUT_BUCKET_NAME", value: config.outputBucketName },
-    { name: "INPUT_FILE_KEY", value: inputFileKey },
     { name: "OUTPUT_DIRECTORY", value: config.outputBucketDirectory },
     { name: "USER_ID", value: uid },
     { name: "ASSET_ID", value: aid },
+    { name: "FILE_MIME_TYPE", value: mime },
   ];
   const params = {
     cluster: config.ecsClusterName,
