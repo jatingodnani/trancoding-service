@@ -23,11 +23,24 @@ def upload_file(bucket_name, file_key, local_filename):
     s3 = boto3.client('s3')
     s3.upload_file(local_filename, bucket_name, file_key)
     print(f"UPLOADED => {local_filename} to {bucket_name}/{file_key}")
+    return f'https://{bucket_name}.s3.amazonaws.com/{file_key}'
 
 def deleteTempFile(bucket_name, file_key):
     s3 = boto3.client('s3')
     s3.delete_object(Bucket=bucket_name, Key=file_key)
     print(f"DELETED => {bucket_name}/{file_key}")
+
+
+def saveLinksToDB(table_name, uid, links):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name)
+    response = table.put_item(
+        Item={
+            "uid" : uid,
+            "links" : links,
+        }
+    )
+    return response
 
 def main():
     # Fetching environment variables
@@ -35,21 +48,25 @@ def main():
     output_bucket = os.getenv('OUTPUT_BUCKET_NAME', 'default-output-bucket')
     file_key = os.getenv('INPUT_FILE_KEY', 'video.mp4')
     output_dir = os.getenv('OUTPUT_DIRECTORY', '')
+    uid = os.getenv('USER_ID', '')
 
     local_input = f'/app/{file_key}'
     local_output = f'/app/output/{file_key}'
 
     download_file(input_bucket, file_key, local_input)
-    config = [['240p','320x240']]
+    config = [['240p','320x240'], ['360p', '640x360']]
     # config = [['240p','320x240'],['360p', '640x360'], ['480p', '640x480'], ['720p', '1280x720'], ['1080p', '1920x1080']]
 
     subprocess.run(['mkdir', '-p', '/app/output'])
+    asset_entry = {}
     for config in config:
         transcoded_local_output = local_output.replace('.mp4', f'_{config[0]}.mp4')
         transcoded_file_key = output_dir + file_key.replace('.mp4', f'_{config[0]}.mp4')
         transcode_video(local_input, transcoded_local_output, config[1])
-        upload_file(output_bucket, transcoded_file_key, transcoded_local_output)
+        link = upload_file(output_bucket, transcoded_file_key, transcoded_local_output)
+        asset_entry[config[0]] = link
         subprocess.run(['rm', transcoded_local_output])
+    saveLinksToDB('assets', uid, asset_entry)
     deleteTempFile(input_bucket, file_key)
 
 if __name__ == '__main__':

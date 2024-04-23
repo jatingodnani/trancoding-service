@@ -22,6 +22,7 @@ ENV INPUT_BUCKET_NAME="jat-twitter-dev"
 ENV OUTPUT_BUCKET_NAME="jat-twitter-dev"
 ENV INPUT_FILE_KEY="video.mp4"
 ENV OUTPUT_DIRECTORY=""
+ENV USER_ID=""
 
 # CMD ["python", "app-dev.py"]
 CMD ["python", "app.py"]
