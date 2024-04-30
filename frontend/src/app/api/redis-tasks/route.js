@@ -5,6 +5,15 @@ import config from "../_constants/config";
 export const GET = async () => {
   const redis = new Redis(config.redisUri);
   const taskLimit = Number(await redis.get("task-limit"));
+  console.log(taskLimit);
   redis.disconnect();
-  return Response.json({ message: taskLimit }, { status: 201 });
+  return Response.json(
+    { message: taskLimit },
+    {
+      status: 201,
+      headers: {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+      },
+    }
+  );
 };
