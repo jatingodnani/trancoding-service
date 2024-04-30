@@ -9,8 +9,10 @@ import {
   taskCanBeStarted,
   triggerNextTask,
 } from "../_constants/services/redis";
+import { currentUser } from "@clerk/nextjs";
 
 export const POST = async (req) => {
+  const {id}=await currentUser()
   const formData = await req.formData();
   const file = formData.get("asset");
   let arrayBuffer = await file.arrayBuffer();
@@ -34,7 +36,7 @@ export const POST = async (req) => {
     // deleteServerFile(file.path);
 
     // Attempt to create the asset item in DynamoDB
-    await createAssetItem(aid, uid);
+    await createAssetItem(aid,id);
 
     // Add task to queue
     await addTaskToQueue({ uid, aid, key, fileMime });

@@ -17,7 +17,7 @@ const Dashboard = () => {
   const fetchAssets = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("/api/assets/kartik-joshi");
+      const response = await axios.get("/api/assets");
       setAssets(response.data);
     } catch (error) {
       console.error("Error fetching assets:", error);
