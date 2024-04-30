@@ -1,5 +1,6 @@
 import Redis from "ioredis";
 import config from "../config";
+import { startEcsTask } from "./ecsService";
 export const addTaskToQueue = async (task) => {
   const redis = new Redis(config.redisUri);
   await redis.lpush("task-queue", JSON.stringify(task));

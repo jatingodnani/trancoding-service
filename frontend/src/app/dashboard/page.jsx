@@ -6,20 +6,19 @@ import VideoComponent from "./_components/VideoComponent";
 
 import { useEffect, useState } from "react";
 
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
 import CheckUser from "@/lib/checkUser";
-
 
 const Dashboard = () => {
   const [assets, setAssets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-   const router=useRouter();
-   const user=CheckUser();
-   if(!user) router.push("/sign-in")
+  const router = useRouter();
+  const user = CheckUser();
+  if (!user) router.push("/sign-in");
   const fetchAssets = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("/api/assets/kartik-joshi");
+      const response = await axios.get("/api/assets/modi-ji");
       setAssets(response.data);
     } catch (error) {
       console.error("Error fetching assets:", error);
