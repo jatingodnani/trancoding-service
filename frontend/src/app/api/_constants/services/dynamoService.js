@@ -15,7 +15,7 @@ export const createAssetItem = async (aid, uid) => {
       aid: { S: aid },
       uid: { S: uid },
       createdAt: { S: new Date().toISOString() },
-      status: { S: "processing" },
+      status: { S: "waiting" },
     },
   });
   await dynamoClient.send(command);

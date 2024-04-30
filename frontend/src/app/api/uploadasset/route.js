@@ -1,14 +1,14 @@
-// export const POST = async (req) => {
-//   const formData = await req.formData();
-//   const asset = formData.get("asset");
-//   console.log(asset);
-//   return new Response("Hello, Next.js!");
-// };
 import { uploadFileToS3, deleteS3File } from "../_constants/services/s3Service";
 import { createAssetItem } from "../_constants/services/dynamoService";
 import { startEcsTask } from "../_constants/services/ecsService";
 import { v4 as uuidv4 } from "uuid";
 import { deleteServerFile, getMimeTypeExtension } from "../_constants/utils";
+import Redis from "ioredis";
+import {
+  addTaskToQueue,
+  taskCanBeStarted,
+  triggerNextTask,
+} from "../_constants/services/redis";
 
 export const POST = async (req) => {
   const formData = await req.formData();
@@ -36,13 +36,15 @@ export const POST = async (req) => {
     // Attempt to create the asset item in DynamoDB
     await createAssetItem(aid, uid);
 
+    // Add task to queue
+    await addTaskToQueue({ uid, aid, key, fileMime });
+
     // Start ECS task
-    await startEcsTask(uid, aid, fileMime);
-    console.log(`${key} ECS task started`);
+    await triggerNextTask();
 
     // If everything succeeded
     return Response.json(
-      { message: `${key}: Transcoding has been started` },
+      { message: `${key}: Task added to queue` },
       { status: 201 }
     );
   } catch (error) {

@@ -19,6 +19,9 @@ ENV OUTPUT_DIRECTORY="transcoding-videos/"
 ENV ASSET_ID="aid"
 ENV USER_ID="uid"
 ENV FILE_MIME_TYPE=".mp4"
+ENV REDIS_URI="redis-uri"
+ENV TRIGGER_ENDPOINT_URL="http://localhost:8000/api/v1/trigger-task"
+ENV ASSET_TABLE_NAME = "assets"
 
 # CMD tail -f /dev/null
 CMD ["python", "app.py"]
