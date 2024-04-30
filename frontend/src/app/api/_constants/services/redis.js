@@ -28,8 +28,9 @@ export const decrementTaskLimit = async () => {
 export const triggerNextTask = async () => {
   const taskCanBeStarted = await taskLimitAvailable();
   if (!taskCanBeStarted) return false;
-  decrementTaskLimit();
   const task = await getNextTask();
+  if (!task) return false;
+  decrementTaskLimit();
   const { uid, aid, fileMime } = task;
   await startEcsTask(uid, aid, fileMime);
   return true;
