@@ -29,11 +29,11 @@ export const decrementTaskLimit = async () => {
 };
 export const triggerNextTask = async () => {
   const taskCanBeStarted = await taskLimitAvailable();
-  if (!taskCanBeStarted) return false;
+  if (!taskCanBeStarted) return "Task limit full";
   const task = await getNextTask();
-  if (!task) return false;
+  if (!task) return "No tasks found";
   decrementTaskLimit();
   const { uid, aid, fileMime } = task;
   await startEcsTask(uid, aid, fileMime);
-  return true;
+  return "OK";
 };
