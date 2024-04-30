@@ -110,8 +110,7 @@ def setStatus(table_name, aid, status):
     return response
 
 def triggerNextTask(endpoint):
-    # requests.get('http://localhost:3000/api/trigger-task')
-    pass
+    requests.get(endpoint)
 
 def main():
     # Env Variables
