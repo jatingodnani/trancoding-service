@@ -1,4 +1,4 @@
 import requests
 
-res = requests.get("https://trancoding-service.vercel.app/api/trigger-task")
+res = requests.post("https://trancoding-service.vercel.app/api/redis-tasks")
 print(res.json())

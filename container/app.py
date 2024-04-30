@@ -111,7 +111,7 @@ def setStatus(table_name, aid, status):
 
 def triggerNextTask(endpoint):
     print(endpoint, flush=True)
-    res = requests.get(endpoint)
+    res = requests.post(endpoint)
     print(res.json(), flush=True)
 
 def main():

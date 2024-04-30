@@ -1,6 +1,6 @@
 import { triggerNextTask } from "../_constants/services/redis";
 
-export const GET = async () => {
+export const POST = async () => {
   const taskStarted = await triggerNextTask();
   if (taskStarted === "OK")
     return Response.json({ message: "Started new task" }, { status: 201 });
