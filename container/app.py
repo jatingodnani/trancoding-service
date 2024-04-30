@@ -141,11 +141,11 @@ def main():
 
         # 2. GET VIDEO DATA
         width, height, pixels, resolution_label = get_video_resolution(local_input)
-        print(f"Original resolution: {width}x{height} classified as {resolution_label}")
+        print(f"Original resolution: {width}x{height} classified as {resolution_label}", flush=True)
 
         # 3. COPY ORIGINAL FILES
         original_file_key = f'{output_dir}{uid}/{aid}_{resolution_label}{mime}'
-        print(f"ORIGINAL VIDEO => {original_file_key}")
+        print(f"ORIGINAL VIDEO => {original_file_key}", flush=True)
         link = upload_file(output_bucket, original_file_key, local_input)
         asset_entry[resolution_label] = link
 
@@ -168,8 +168,8 @@ def main():
             link = upload_file(output_bucket, transcoded_file_key, transcoded_local_output)
             asset_entry[data['res']] = link
             subprocess.run(['rm', transcoded_local_output])
-            # 6. SAVE TO DB
-            saveLinksToDB(asset_table, aid, asset_entry)
+        # 6. SAVE TO DB
+        saveLinksToDB(asset_table, aid, asset_entry)
     except(Exception) as e:
         setStatus(asset_table, aid, "failed")
         print(e, flush=True)
