@@ -3,7 +3,7 @@ import { triggerNextTask } from "../_constants/services/redis";
 import config from "../_constants/config";
 let x = 1;
 
-export const GET = async () => {
+export const POST = async () => {
   const redis = new Redis(config.redisUri);
   const taskLimit = Number(await redis.get("task-limit"));
   console.log(taskLimit);

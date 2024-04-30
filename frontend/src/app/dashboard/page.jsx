@@ -6,15 +6,9 @@ import VideoComponent from "./_components/VideoComponent";
 
 import { useEffect, useState } from "react";
 
-import { useRouter } from "next/navigation";
-import CheckUser from "@/lib/checkUser";
-
 const Dashboard = () => {
   const [assets, setAssets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
-  const user = CheckUser();
-  if (!user) router.push("/sign-in");
 
   const fetchAssets = async () => {
     setIsLoading(true);
