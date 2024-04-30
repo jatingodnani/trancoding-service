@@ -16,7 +16,7 @@ export const POST = async (req) => {
   let arrayBuffer = await file.arrayBuffer();
   const uid = formData.get("uid");
   const fileName = file.name;
-  const aid = uuidv4(); // Generate a new UUID
+  const aid = uuidv4();
   const fileMime = getMimeTypeExtension(file);
   const key = aid + fileMime;
   // Check if file type is supported
