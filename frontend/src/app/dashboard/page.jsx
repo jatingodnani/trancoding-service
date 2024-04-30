@@ -15,6 +15,7 @@ const Dashboard = () => {
   const router = useRouter();
   const user = CheckUser();
   if (!user) router.push("/sign-in");
+
   const fetchAssets = async () => {
     setIsLoading(true);
     try {
