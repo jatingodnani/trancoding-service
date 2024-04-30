@@ -7,9 +7,11 @@ module.exports = {
   outputBucketName: process.env.AWS_OUTPUT_BUCKET_NAME,
   outputBucketDirectory: process.env.AWS_OUTPUT_BUCKET_DIRECTORY,
   dynamoTableAsset: process.env.DYNAMO_TABLE_ASSET,
+  triggerEndpointUrl: process.env.TRIGGER_ENDPOINT_URL,
   ecsTaskSubnets: [
     process.env.AWS_ECS_TASK_SUBNET_1,
     process.env.AWS_ECS_TASK_SUBNET_2,
     process.env.AWS_ECS_TASK_SUBNET_3,
   ],
+  redisUri: process.env.REDIS_URI,
 };
