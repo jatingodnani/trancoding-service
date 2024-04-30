@@ -22,19 +22,23 @@ function InputFile({ file, setFile }) {
 
 function Uploadassets() {
   const router = useRouter();
-
+  const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   const handleUploadAsset = () => {
     if (confirm("Are you sure you want to start the video transcoding?")) {
       if (file === null) return;
-      console.log(file);
       const formData = new FormData();
       formData.append("asset", file);
-      formData.append("uid", "modi-ji");
-      axios.post("/api/uploadasset", formData).then((response) => {
-        console.log(response.data);
-        router.push("/dashboard");
-      });
+      setLoading(true);
+      axios
+        .post("/api/uploadasset", formData)
+        .then((response) => {
+          console.log(response.data);
+          router.push("/dashboard");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   };
   return (
@@ -94,7 +98,7 @@ function Uploadassets() {
             className="rounded text-center font-medium py-3 px-4 text-white bg-blue-600 mt-3 hover:bg-blue-700 flex-1 whitespace-nowrap disabled:bg-gray-400"
             onClick={handleUploadAsset}
           >
-            Start Processing
+            {loading ? "Uploading..." : "Start Processing"}
           </button>
         </div>
       </div>

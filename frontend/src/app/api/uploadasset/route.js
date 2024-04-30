@@ -1,9 +1,7 @@
 import { uploadFileToS3, deleteS3File } from "../_constants/services/s3Service";
 import { createAssetItem } from "../_constants/services/dynamoService";
-import { startEcsTask } from "../_constants/services/ecsService";
 import { v4 as uuidv4 } from "uuid";
-import { deleteServerFile, getMimeTypeExtension } from "../_constants/utils";
-import Redis from "ioredis";
+import { getMimeTypeExtension } from "../_constants/utils";
 import {
   addTaskToQueue,
   taskCanBeStarted,
@@ -12,11 +10,10 @@ import {
 import { currentUser } from "@clerk/nextjs";
 
 export const POST = async (req) => {
-  const {id}=await currentUser()
+  const { id: uid } = await currentUser();
   const formData = await req.formData();
   const file = formData.get("asset");
   let arrayBuffer = await file.arrayBuffer();
-  const uid = formData.get("uid");
   const fileName = file.name;
   const aid = uuidv4();
   const fileMime = getMimeTypeExtension(file);
@@ -33,10 +30,8 @@ export const POST = async (req) => {
     // Upload file to S3
     await uploadFileToS3(file, key, arrayBuffer);
 
-    // deleteServerFile(file.path);
-
     // Attempt to create the asset item in DynamoDB
-    await createAssetItem(aid,id);
+    await createAssetItem(aid, uid);
 
     // Add task to queue
     await addTaskToQueue({ uid, aid, key, fileMime });
@@ -58,9 +53,6 @@ export const POST = async (req) => {
     } catch (deleteError) {
       console.error(`Failed to delete ${key} from S3 bucket:`, deleteError);
     }
-
-    // Delete from node server (this could be done in a finally block if always needed)
-    // deleteServerFile(file.path);
 
     // Respond with an error
     Response.json(
