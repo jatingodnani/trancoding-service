@@ -1,6 +1,7 @@
 import { Redis } from "ioredis";
 import { triggerNextTask } from "../_constants/services/redis";
 import config from "../_constants/config";
+let x = 1;
 
 export const GET = async () => {
   const redis = new Redis(config.redisUri);
@@ -8,7 +9,7 @@ export const GET = async () => {
   console.log(taskLimit);
   redis.disconnect();
   return Response.json(
-    { message: taskLimit },
+    { message: taskLimit, id: x++ },
     {
       status: 201,
       headers: {
