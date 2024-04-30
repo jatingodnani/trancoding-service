@@ -110,7 +110,9 @@ def setStatus(table_name, aid, status):
     return response
 
 def triggerNextTask(endpoint):
-    requests.get(endpoint)
+    print(endpoint, flush=True)
+    res = requests.get(endpoint)
+    print(res.json(), flush=True)
 
 def main():
     # Env Variables
