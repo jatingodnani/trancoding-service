@@ -1,9 +1,3 @@
-// export const POST = async (req) => {
-//   const formData = await req.formData();
-//   const asset = formData.get("asset");
-//   console.log(asset);
-//   return new Response("Hello, Next.js!");
-// };
 import { uploadFileToS3, deleteS3File } from "../_constants/services/s3Service";
 import { createAssetItem } from "../_constants/services/dynamoService";
 import { startEcsTask } from "../_constants/services/ecsService";
@@ -16,7 +10,7 @@ export const POST = async (req) => {
   let arrayBuffer = await file.arrayBuffer();
   const uid = formData.get("uid");
   const fileName = file.name;
-  const aid = uuidv4(); // Generate a new UUID
+  const aid = uuidv4();
   const fileMime = getMimeTypeExtension(file);
   const key = aid + fileMime;
   // Check if file type is supported
