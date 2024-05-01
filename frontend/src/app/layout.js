@@ -1,7 +1,12 @@
-import { Inter } from "next/font/google";
+
 import "./globals.css";
+import localFont from "next/font/local";
 import { ClerkProvider } from '@clerk/nextjs'
-const inter = Inter({ subsets: ["latin"] });
+const clashDisplay = localFont({
+  src: "../assets/font/ClashDisplay-Variable (1).ttf",
+  variable: "--font-clashDisplay",
+  weight: "700"
+})
 
 export const metadata = {
   title: "Create Next App",
@@ -12,7 +17,7 @@ export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={`${clashDisplay.variable}`}>{children}</body>
     </html>
     </ClerkProvider>
   );
