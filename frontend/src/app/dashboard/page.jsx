@@ -30,14 +30,14 @@ const Dashboard = () => {
         <h1 className="text-3xl flex-1 font-bold">Assets</h1>
         <button
           type="button"
-          className="bg-blue-800 hover:bg-blue-900 text-white font-semibold py-2 px-4 rounded"
+          className="bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded"
           onClick={() => fetchAssets()}
         >
           Reload
         </button>
         <Link
           href="/uploadassets"
-          className="bg-blue-800 hover:bg-blue-900 text-white font-semibold py-2 px-4 rounded"
+          className="bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded"
         >
           Add Asset
         </Link>
