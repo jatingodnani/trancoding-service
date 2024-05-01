@@ -27,17 +27,17 @@ const Dashboard = () => {
   return (
     <div className="p-6">
       <div className="my-4 flex justify-between gap-2">
-        <h1 className="text-3xl flex-1">Assets</h1>
+        <h1 className="text-3xl flex-1 font-bold">Assets</h1>
         <button
           type="button"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-blue-800 hover:bg-blue-900 text-white font-semibold py-2 px-4 rounded"
           onClick={() => fetchAssets()}
         >
           Reload
         </button>
         <Link
           href="/uploadassets"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-blue-800 hover:bg-blue-900 text-white font-semibold py-2 px-4 rounded"
         >
           Add Asset
         </Link>
@@ -45,22 +45,25 @@ const Dashboard = () => {
       {isLoading ? (
         <div>Loading...</div>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 max-w-5xl mx-auto mt-12">
           {assets.map((asset, index) => (
             <div
               key={asset?.aid?.S}
-              className="flex gap-4 p-6 bg-slate-200 hover:bg-slate-100 rounded-xl min-h-[200px] items-center transition-colors border border-slate-200"
+              className="flex gap-4 p-6 rounded-xl min-h-[200px] items-center transition-colors border border-slate-700 md:flex-row flex-col"
             >
               {asset?.links?.M ? (
                 <VideoComponent
                   links={asset?.links?.M}
-                  className="h-full w-64 flex flex-col gap-2"
-                  videoClassName="object-cover rounded-xl"
+                  className="w-full md:w-64 flex flex-col gap-2"
+                  videoClassName="object-cover h-48 md:h-32 rounded-xl border border-slate-700"
                 />
               ) : (
-                <div className="w-64">
-                  <Skeleton className="w-full h-32 rounded-xl mb-4" />
-                  <Skeleton className="w-full h-8 rounded-xl" />
+                <div className="w-full md:w-64">
+                  <Skeleton className="w-full h-48 md:h-32 rounded-xl mb-4 bg-white/50" />
+                  <div className="flex gap-2">
+                    <Skeleton className="w-full h-8 rounded-xl bg-white/50" />
+                    <Skeleton className="w-10 h-8 rounded-xl bg-white/50" />
+                  </div>
                 </div>
               )}
               <div className="flex flex-col">
