@@ -7,7 +7,7 @@ const Header = () => {
   return (
     <header
       className="sticky w-full top-0 left-0 z-[999] border-b text-black
-   border-b-[#000] h-[80px]  p-10 flex justify-between items-center"
+   border-b-[#000] h-[80px]  p-10 flex justify-between items-center bg-white"
     >
       <div>
         <Link href={"/"}>Transcoding service</Link>
