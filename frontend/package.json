@@ -16,7 +16,11 @@
     "@clerk/nextjs": "^4.30.0",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-slot": "^1.0.2",
+<<<<<<< HEAD
     "@radix-ui/react-tooltip": "^1.0.7",
+=======
+    "@radix-ui/themes": "^3.0.3",
+>>>>>>> 70a906e39b9f51344713172f78100bd79c16ff8e
     "axios": "^1.6.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

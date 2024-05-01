@@ -1,12 +1,15 @@
 
 import "./globals.css";
 import localFont from "next/font/local";
-import { ClerkProvider } from '@clerk/nextjs'
+
 const clashDisplay = localFont({
   src: "../assets/font/ClashDisplay-Variable (1).ttf",
   variable: "--font-clashDisplay",
   weight: "700"
 })
+import { ClerkProvider } from "@clerk/nextjs";
+import "@radix-ui/themes/styles.css";
+
 
 export const metadata = {
   title: "Create Next App",
