@@ -11,16 +11,14 @@ const Header = () => {
    border-b-[#000] h-[80px]  p-10 rounded-md flex font-clashDisplay shadow-lg justify-between items-center"
     >
       <div>
-        <Link href={"/"}><Image width={"80"} height="80"src={"/logo.png"}/></Link>
+        <Link href={"/"}>
+          <Image width={"80"} height="80" src={"/logo.png"} />
+        </Link>
       </div>
-      <div>
-        <NavItems />
-      </div>
+      <div>{/* <NavItems /> */}</div>
       <div className="flex items-center gap-3">
         <Toolbox />
       </div>
-    
-      
     </header>
   );
 };

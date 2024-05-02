@@ -4,7 +4,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Cross, CrossIcon, File, Upload, X } from "lucide-react";
-
+import toast from "react-hot-toast";
 
 function Uploadassets() {
   const router = useRouter();
@@ -16,6 +16,8 @@ function Uploadassets() {
       const formData = new FormData();
       formData.append("asset", file);
       setLoading(true);
+      const toastId = toast.loading("Uploading... Please wait!");
+
       axios
         .post("/api/uploadasset", formData)
         .then((response) => {
@@ -24,6 +26,7 @@ function Uploadassets() {
         })
         .finally(() => {
           setLoading(false);
+          toast.dismiss(toastId);
         });
     }
   };
@@ -66,7 +69,7 @@ function Uploadassets() {
                 </button>
               )}
               <label htmlFor="upload-file" className="flex-1">
-                <p className="bg-green-500 hover:bg-green-700 text-white  py-2 px-4 rounded text-center w-full cursor-pointer">
+                <div className="bg-green-500 hover:bg-green-700 text-white  py-2 px-4 rounded text-center w-full cursor-pointer">
                   {file ? (
                     <div className="flex items-center gap-2 justify-center">
                       <File /> Change File
@@ -76,14 +79,19 @@ function Uploadassets() {
                       <Upload /> Upload File
                     </div>
                   )}
-                </p>
+                </div>
                 <input
                   type="file"
                   className="hidden"
                   name="upload-file"
                   id="upload-file"
                   accept="video/mp4,video/mov,video/x-matroska,video/webm"
-                  onChange={(e) => setFile(e.target.files[0])}
+                  onChange={(e) => {
+                    const selectedFile = e.target.files[0];
+                    if (selectedFile && selectedFile.size / 1024 / 1024 < 5) {
+                      setFile(selectedFile);
+                    } else toast.error("File size should be less than 5MB");
+                  }}
                 />
               </label>
             </div>

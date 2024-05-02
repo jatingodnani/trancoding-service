@@ -7,9 +7,7 @@ import Footer from "./footer";
 function Home() {
   return (
     <div className="w-[100%]">
-      <Header />
       <Banner />
-      <Footer/>
     </div>
   );
 }

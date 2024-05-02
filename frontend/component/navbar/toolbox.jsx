@@ -1,19 +1,20 @@
 import { Button } from "@/components/ui/button";
-import { currentUser } from "@clerk/nextjs";
+import { UserButton, currentUser } from "@clerk/nextjs";
 import { SignOutButton } from "@clerk/nextjs";
 import Link from "next/link";
 
-function  Toolbox() {
+function Toolbox() {
   const current = currentUser();
   return (
     <div className="flex items-center justify-center gap-6">
-      <Button className="text-lg bg-blue-600 text-white">Start Trial</Button>
+      {/* <Button className="text-lg bg-primary hover:bg-primary-dark transition-colors text-white">
+        Start Trial
+      </Button> */}
+
       {current && (
-        <Link
-          href={"/dashboard"}
-        
-        >
+        <Link href={"/dashboard"}>
           <svg
+            className="text-white hover:text-primary transition-colors"
             xmlns="http://www.w3.org/2000/svg"
             width="30"
             height="30"
@@ -35,28 +36,7 @@ function  Toolbox() {
           </svg>
         </Link>
       )}
-      {!current ? (
-        <Link href={"/sign-in"}>Login</Link>
-      ) : (
-        <Link href={"/profile"} className="pointer">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="30"
-            height="30"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-circle-user-round"
-          >
-            <path d="M18 20a6 6 0 0 0-12 0" />
-            <circle cx="12" cy="10" r="4" />
-            <circle cx="12" cy="12" r="10" />
-          </svg>
-        </Link>
-      ) }
+      {!current ? <Link href={"/sign-in"}>Login</Link> : <UserButton />}
     </div>
   );
 }

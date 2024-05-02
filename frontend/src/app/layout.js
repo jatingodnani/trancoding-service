@@ -1,15 +1,16 @@
-
 import "./globals.css";
 import localFont from "next/font/local";
 
 const clashDisplay = localFont({
   src: "../assets/font/ClashDisplay-Variable (1).ttf",
   variable: "--font-clashDisplay",
-  weight: "700"
-})
+  weight: "700",
+});
 import { ClerkProvider } from "@clerk/nextjs";
 import "@radix-ui/themes/styles.css";
-
+import { Toaster } from "react-hot-toast";
+import Header from "../../component/navbar/Header";
+import Footer from "../../component/home/footer";
 
 export const metadata = {
   title: "Create Next App",
@@ -19,10 +20,14 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
-    <html lang="en">
-      
-      <body className={`${clashDisplay.variable}`}>{children}</body>
-    </html>
+      <html lang="en">
+        <body className={`${clashDisplay.variable}`}>
+          <Toaster />
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </body>
+      </html>
     </ClerkProvider>
   );
 }
