@@ -20,6 +20,7 @@ export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
     <html lang="en">
+      
       <body className={`${clashDisplay.variable}`}>{children}</body>
     </html>
     </ClerkProvider>

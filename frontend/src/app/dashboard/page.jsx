@@ -3,7 +3,7 @@ import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import VideoComponent from "./_components/VideoComponent";
-
+import { Audio } from 'react-loader-spinner'
 import { useEffect, useState } from "react";
 
 const Dashboard = () => {
@@ -43,7 +43,18 @@ const Dashboard = () => {
         </Link>
       </div>
       {isLoading ? (
-        <div>Loading...</div>
+        <div className="w-full h-full flex items-center justify-center">
+        <Audio
+        height="80"
+        width="80"
+        radius="9"
+        color="red"
+        ariaLabel="loading"
+        wrapperStyle
+        wrapperClass
+         className=""
+      />
+      </div>
       ) : (
         <div className="flex flex-col gap-4 max-w-5xl mx-auto mt-12">
           {assets.map((asset, index) => (
