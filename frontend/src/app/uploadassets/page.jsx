@@ -31,7 +31,7 @@ function Uploadassets() {
     }
   };
   return (
-    <div className="w-full h-screen flex justify-center items-center">
+    <div className="w-full h-screen flex justify-center items-center pt-20">
       <div className=" border-slate-700 border rounded-xl flex flex-col item-center justify-between p-6">
         {/* <InputFile file={file} setFile={setFile} /> */}
         <h1 className="font-semibold text-center text-xl mb-2">UPLOAD FILE</h1>

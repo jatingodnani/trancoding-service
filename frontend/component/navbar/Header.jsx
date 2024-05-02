@@ -7,7 +7,7 @@ import Image from "next/image";
 const Header = () => {
   return (
     <header
-      className="sticky w-full top-0 left-0 z-[999] border-b text-white bg-[#232627]
+      className="fixed backdrop-blur-sm w-full top-0 left-0 z-[999] border-b text-white bg-[#232627] bg-opacity-50
    border-b-[#000] h-[80px]  p-10 rounded-md flex font-clashDisplay shadow-lg justify-between items-center"
     >
       <div>
