@@ -12,11 +12,12 @@ export default function Banner() {
         className="h-full w-full object-cover relative"
       ></video>
       <div className="absolute top-0 left-0 h-full w-full bg-black/80">
-        <div className="absolute text-white top-1/2 left-4 flex items-center justify-around">
-          <h1 className="text-6xl font-bold w-[50%]">Video Transcoding</h1>
-<p className="font-clashDisplay w-[40%] text-2xl">Welcome to Service, where uploading videos is a breeze. Simply upload your video, and we'll optimize it without compromising quality. Receive a 
-  shareable URL in minutes, ready to dazzle your audience across all platforms!</p>
-        </div>
+      <div className="absolute text-white top-1/2 left-4 flex flex-col items-center justify-around sm:flex-row">
+  <h1 className="text-6xl font-bold w-[50%]">Video Transcoding</h1>
+  <p className="font-clashDisplay w-[40%] text-2xl">Welcome to Service, where uploading videos is a breeze. Simply upload your video, and we'll optimize it without compromising quality. Receive a 
+    shareable URL in minutes, ready to dazzle your audience across all platforms!</p>
+</div>
+
       </div>
     </div>
   );
