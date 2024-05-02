@@ -5,7 +5,8 @@ import Link from "next/link";
 import VideoComponent from "./_components/VideoComponent";
 import { Audio } from "react-loader-spinner";
 import { useEffect, useState } from "react";
-import { FilePlusIcon, RefreshCcw } from "lucide-react";
+import { FilePlusIcon, RefreshCcw, Trash } from "lucide-react";
+import toast from "react-hot-toast";
 
 const Dashboard = () => {
   const [assets, setAssets] = useState([]);
@@ -20,6 +21,21 @@ const Dashboard = () => {
       console.error("Error fetching assets:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+  const handleDelete = async (aid) => {
+    if (confirm("Are you sure you want to delete this asset")) {
+      const loadingId = toast.loading("Deleting file...!");
+      try {
+        await axios.post("/api/delete-asset", { aid });
+        await fetchAssets();
+        toast.success("File deleted successfully");
+      } catch (error) {
+        console.error("Error fetching assets:", error);
+        toast.error("Error deleting file");
+      } finally {
+        toast.dismiss(loadingId);
+      }
     }
   };
   useEffect(() => {
@@ -115,6 +131,15 @@ const Dashboard = () => {
                       </tr>
                     </tbody>
                   </table>
+                  <div>
+                    <button
+                      type="button"
+                      className="bg-[#232627] hover:bg-primary-dark text-white font-semibold py-1 px-2 rounded flex items-center gap-2 text-xs my-2"
+                      onClick={() => handleDelete(asset?.aid?.S)}
+                    >
+                      <Trash /> Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
