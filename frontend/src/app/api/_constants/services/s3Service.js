@@ -3,10 +3,10 @@ import {
   PutObjectCommand,
   DeleteObjectCommand,
   ListObjectsV2Command,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3";
-import config, { outputBucketDirectory } from "../config";
-// import fs from "fs";
-import { getMimeTypeExtension } from "../utils";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import config from "../config";
 
 const s3Client = new S3Client({ region: config.awsRegion });
 
@@ -52,4 +52,14 @@ export const deleteAllFilesStartingWithAid = async (aid, uid) => {
   console.log(
     `All files starting with ${config.outputBucketDirectory}${uid}/${aid} deleted successfully`
   );
+};
+
+export const getPutPresignedUrl = async (path) => {
+  const params = {
+    Bucket: config.inputBucketName,
+    Key: path,
+  };
+  const command = new PutObjectCommand(params);
+  const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+  return url;
 };

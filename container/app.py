@@ -27,6 +27,7 @@ def get_video_resolution(input_file):
         '-of', 'json', input_file
     ]
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    print(result.stdout, flush=True)
     resolution_data = json.loads(result.stdout)
     width = resolution_data['streams'][0]['width']
     height = resolution_data['streams'][0]['height']
@@ -170,9 +171,10 @@ def main():
             subprocess.run(['rm', transcoded_local_output])
         # 6. SAVE TO DB
         saveLinksToDB(asset_table, aid, asset_entry)
-    except(Exception) as e:
+    except Exception as e:
         setStatus(asset_table, aid, "failed")
-        print(e, flush=True)
+        print("ERROR Is => ", e, flush=True)
+        print("ERROR Is => ", e)
     finally:
         # 7. DELETE TEMP FILE
         deleteTempFile(input_bucket, file_key)
