@@ -8,6 +8,13 @@ import { useEffect, useState } from "react";
 import { FilePlusIcon, RefreshCcw, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 
+const statusColors = {
+  completed: "text-green-700",
+  processing: "text-blue-700",
+  waiting: "text-orange-700",
+  failed: "text-red-700",
+};
+
 const Dashboard = () => {
   const [assets, setAssets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,10 +121,12 @@ const Dashboard = () => {
                               Status :
                             </td>
                             <td
-                              className={`${
-                                asset?.status?.S === "completed"
-                                  ? "text-green-700"
-                                  : "text-yellow-600"
+                              className={`${statusColors[asset?.status?.S]} ${
+                                ["processing", "waiting"].includes(
+                                  asset?.status?.S
+                                )
+                                  ? "animate-pulse"
+                                  : ""
                               } capitalize`}
                             >
                               {asset?.status?.S}
