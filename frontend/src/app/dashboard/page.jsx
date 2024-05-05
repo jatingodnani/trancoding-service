@@ -96,7 +96,7 @@ const Dashboard = () => {
                       <VideoComponent
                         links={asset?.links?.M}
                         className="w-full md:w-64 flex flex-col gap-2"
-                        videoClassName="object-cover h-48 md:h-32 rounded-xl border border-slate-700"
+                        videoClassName="object-contain h-48 md:h-32 rounded-xl border border-slate-700"
                       />
                     ) : (
                       <div className="w-full md:w-64">
