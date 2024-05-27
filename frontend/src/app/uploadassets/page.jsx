@@ -3,35 +3,47 @@ import { useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Cross, CrossIcon, File, Upload, X } from "lucide-react";
+import { ArrowLeft, File, Upload, X } from "lucide-react";
 import toast from "react-hot-toast";
 
 function Uploadassets() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
-  const handleUploadAsset = () => {
+
+  const handleUploadFile = async () => {
+    if (file === null) return;
     if (confirm("Are you sure you want to start the video transcoding?")) {
-      if (file === null) return;
-      const formData = new FormData();
-      formData.append("asset", file);
       setLoading(true);
       const toastId = toast.loading("Uploading... Please wait!");
-
-      axios
-        .post("/api/uploadasset", formData)
-        .then((response) => {
-          console.log(response.data);
-          router.push("/dashboard");
-        })
-        .finally(() => {
-          setLoading(false);
-          toast.dismiss(toastId);
+      try {
+        // GET PRESIGNED URL
+        const {
+          data: { signedUrl, file: fileData },
+        } = await axios.post("/api/uploadurl", {
+          mime: file.type,
         });
+        console.log(fileData);
+        // UPLOAD FILE TO S3
+        await axios.put(signedUrl, file, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        // START TASK
+        await axios.post("/api/start-transcoding", fileData);
+        toast.success("Your file has been queued successfully!");
+        router.push("/dashboard");
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+        toast.dismiss(toastId);
+      }
     }
   };
   return (
-    <div className="w-full h-screen flex justify-center items-center">
+    <div className="w-full min-h-screen flex justify-center items-center p-10 pt-20">
       <div className=" border-slate-700 border rounded-xl flex flex-col item-center justify-between p-6">
         {/* <InputFile file={file} setFile={setFile} /> */}
         <h1 className="font-semibold text-center text-xl mb-2">UPLOAD FILE</h1>
@@ -88,9 +100,9 @@ function Uploadassets() {
                   accept="video/mp4,video/mov,video/x-matroska,video/webm"
                   onChange={(e) => {
                     const selectedFile = e.target.files[0];
-                    if (selectedFile && selectedFile.size / 1024 / 1024 < 5) {
+                    if (selectedFile && selectedFile.size / 1024 / 1024 < 50) {
                       setFile(selectedFile);
-                    } else toast.error("File size should be less than 5MB");
+                    } else toast.error("File size should be less than 50MB");
                   }}
                 />
               </label>
@@ -113,7 +125,7 @@ function Uploadassets() {
           <button
             disabled={file === null || loading}
             className="rounded text-center font-medium py-3 px-4 text-white bg-blue-600 mt-3 hover:bg-blue-700 flex-1 whitespace-nowrap disabled:bg-gray-800"
-            onClick={handleUploadAsset}
+            onClick={handleUploadFile}
           >
             {loading ? (
               <span className="animate-pulse">Uploading...</span>

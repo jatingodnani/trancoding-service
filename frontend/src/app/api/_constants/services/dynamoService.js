@@ -1,4 +1,5 @@
 import {
+  DeleteItemCommand,
   DynamoDBClient,
   PutItemCommand,
   QueryCommand,
@@ -37,5 +38,21 @@ export const getAssets = async (uid) => {
   } catch (error) {
     console.error("Error fetching all assets:", error);
     return []; // Return an empty array in case of error
+  }
+};
+
+export const deleteAsset = async (aid) => {
+  const command = new DeleteItemCommand({
+    TableName: config.dynamoTableAsset,
+    Key: {
+      aid: { S: aid },
+    },
+  });
+
+  try {
+    await dynamoClient.send(command);
+    console.log(`DynamoDB item with aid=${aid} deleted successfully`);
+  } catch (error) {
+    console.error(`Failed to delete DynamoDB item with aid=${aid}:`, error);
   }
 };

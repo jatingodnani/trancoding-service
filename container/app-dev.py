@@ -1,11 +1,16 @@
 import os
 import subprocess
-import boto3
-
+# import boto3
 import json
+# import redis
+# import requests
+from PIL import Image
+import math
+
 
 # Configuration for standard video resolutions
 video_config = [
+    {'res': '4K', 'width': 3840, 'height': 2160, 'pixels': 3840 * 2160},
     {'res': '1080p', 'width': 1920, 'height': 1080, 'pixels': 1920 * 1080},
     {'res': '720p', 'width': 1280, 'height': 720, 'pixels': 1280 * 720},
     {'res': '480p', 'width': 854, 'height': 480, 'pixels': 854 * 480},
@@ -13,10 +18,6 @@ video_config = [
     {'res': '240p', 'width': 426, 'height': 240, 'pixels': 426 * 240}
 ]
 def classify_resolution(pixels):
-    """
-    Classifies the resolution based on width and height using predefined standards.
-    """
-    
     for resolution in video_config:
         if pixels >= resolution['pixels']:
             return resolution['res']
@@ -24,26 +25,32 @@ def classify_resolution(pixels):
 
 def get_video_resolution(input_file):
     """
-    Uses ffprobe to get the resolution of the input video.
+    Extracts a frame from the video, checks its resolution, and classifies the resolution.
     """
+    # Step A: Extract the first frame
+    output_file = 'temp_frame.jpg'
     command = [
-        'ffprobe', '-v', 'error', '-select_streams', 'v:0',
-        '-show_entries', 'stream=width,height',
-        '-of', 'json', input_file
+        'ffmpeg', '-i', input_file, '-vframes', '1', '-q:v', '2', output_file
     ]
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    resolution_data = json.loads(result.stdout)
-    width = resolution_data['streams'][0]['width']
-    height = resolution_data['streams'][0]['height']
+    subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    # Step B: Determine dimensions of the extracted frame
+    try:
+        with Image.open(output_file) as img:
+            width, height = img.size
+    finally:
+        import os
+        os.remove(output_file)  # Clean up the extracted frame
+
+    # Step C: Calculate pixels and classify resolution
     pixels = width * height
     resolution_label = classify_resolution(pixels)
-    return width, height, pixels, resolution_label
+    isPotrait = height > width
+
+    return width, height, pixels, resolution_label, isPotrait
 
 
 def transcode_video(input_file, output_file, resolution):
-    """
-    Transcode the video to a different resolution.
-    """
     command = [
         'ffmpeg', '-i', input_file,
         '-vcodec', 'libx264', '-preset', 'veryfast', '-crf', '23',
@@ -96,63 +103,107 @@ def saveLinksToDB(table_name, aid, links):
     print(f"Updated item with aid {aid}: {response}", flush=True)
     return response
 
+def setStatus(table_name, aid, status):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name)
+
+    # Update the item in DynamoDB where the primary key (aid) matches
+    response = table.update_item(
+        Key={
+            'aid': aid
+        },
+        UpdateExpression="SET #sts = :status",
+        ExpressionAttributeNames={
+            "#sts": "status"
+        },
+        ExpressionAttributeValues={
+            ":status": status
+        },
+        ReturnValues="UPDATED_NEW"
+    )
+    print(f"Updated item with aid {aid}: {response}", flush=True)
+    return response
+
+def triggerNextTask(endpoint):
+    print(endpoint, flush=True)
+    res = requests.post(endpoint)
+    print(res.json(), flush=True)
+
 def main():
     # Env Variables
     input_bucket = os.getenv('INPUT_BUCKET_NAME', 'trancodingservice-temp')
     output_bucket = os.getenv('OUTPUT_BUCKET_NAME', 'trancodingservice-temp')
     output_dir = os.getenv('OUTPUT_DIRECTORY', 'transcoding-videos/')
+    redis_uri = os.getenv('REDIS_URI', 'redis-uri')
+    trigger_endpoint_url = os.getenv('TRIGGER_ENDPOINT_URL', 'http://localhost:3000/api/trigger-task')
+    asset_table = os.getenv('ASSET_TABLE_NAME', 'assets')
     uid = os.getenv('USER_ID', 'uid')
-    aid = os.getenv('ASSET_ID', 'video')
-    mime = os.getenv("FILE_MIME_TYPE", ".mov")
-    aid = "song-1080"
-    mime = ".mov"
+    aid = os.getenv('ASSET_ID', 'aid')
+    mime = os.getenv("FILE_MIME_TYPE", ".mp4")
     # Constants
-    file_key = aid+mime
-    local_input = f'/app/{file_key}'
-    local_output = f'/app/output/{file_key}'
+    # redis_client = redis.from_url(redis_uri)
+    file_key = "mobile.mp4"
+    local_input = f'/mnt/d/Projects/trancoding-service/container/{file_key}'
+    local_output = f'/mnt/d/Projects/trancoding-service/container/output/'
     # Variables
     asset_entry = {}
     skip_original_resolution = True
 
-    print(local_input)
+    try:
+        # 1. DOWNLOAD TEMP FILE & SET STATUS TO PROCESSING
+        # download_file(input_bucket, file_key, local_input)
+        # setStatus(asset_table, aid, "processing")
 
-    # 1. DOWNLOAD TEMP FILE
-    # download_file(input_bucket, file_key, local_input)
+        # 2. GET VIDEO DATA
+        width, height, pixels, resolution_label, isPotrait = get_video_resolution(local_input)
+        print(f"Original resolution: {width}x{height} classified as {resolution_label}", flush=True)
 
-    # 2. GET VIDEO DATA
-    width, height, pixels, resolution_label = get_video_resolution(local_input)
-    print(f"Original resolution: {width}x{height} classified as {resolution_label}")
+        # 3. COPY ORIGINAL FILES
+        original_file_key = f'{output_dir}{uid}/{aid}_{resolution_label}{mime}'
+        print(f"ORIGINAL VIDEO => {original_file_key}", flush=True)
+        # link = upload_file(output_bucket, original_file_key, local_input)
+        # asset_entry[resolution_label] = link
 
-    # 3. COPY ORIGINAL FILES
-    original_file_key = f'{output_dir}{uid}/{aid}_{resolution_label}{mime}'
-    print(f"ORIGINAL VIDEO => {original_file_key}")
-    # link = upload_file(output_bucket, original_file_key, local_input)
-    # asset_entry[data['res']] = link
-
-    # MAKE OUTPUT DIRECTORY
-    subprocess.run(['mkdir', '-p', '/app/output'])
-    for data in video_config:
-        if data['pixels'] > pixels:
-            # SKIP HIGHER RESOLUTIONS
-            continue
-        if(skip_original_resolution):
-            # ORIGINAL FILE ALREADY UPLOADED - (SKIP THIS RESOLUTION)
-            skip_original_resolution = False
-            continue
-        # 4. TRANSCODING
-        transcoded_local_output = local_output.replace(mime, f"_{data['res']}{mime}")
-        transcoded_file_key = f"{output_dir}{uid}/{aid}_{data['res']}{mime}"
-        print(f"{transcoded_local_output} processing...")
-        transcode_video(local_input, transcoded_local_output, f"{data['width']}x{data['height']}")
-        # 5. UPLOADING
-        # link = upload_file(output_bucket, transcoded_file_key, transcoded_local_output)
-        # asset_entry[data['res']] = link
-        # subprocess.run(['rm', transcoded_local_output])
-
-    # 6. SAVE TO DB
-    # saveLinksToDB('assets', aid, asset_entry)
-    # 7. DELETE TEMP FILE
-    # deleteTempFile(input_bucket, file_key)
+        # MAKE OUTPUT DIRECTORY
+        subprocess.run(['mkdir', '-p', local_output])
+        for data in video_config:
+            if data['pixels'] > pixels:
+                # SKIP HIGHER RESOLUTIONS
+                continue
+            if(skip_original_resolution):
+                # ORIGINAL FILE ALREADY UPLOADED - (SKIP THIS RESOLUTION)
+                skip_original_resolution = False
+                continue
+            # 4. TRANSCODING
+            transcoded_local_output = (local_output+file_key).replace(mime, f"_{data['res']}{mime}")
+            transcoded_file_key = f"{output_dir}{uid}/{aid}_{data['res']}{mime}"
+            transcoded_res = f"{data['width']}x{data['height']}"
+            if(isPotrait):
+                transcoded_res = f"{data['height']}x{data['width']}"
+            print(f"Transcoding... {transcoded_local_output}", flush=True)
+            print(f"Transcoding... {transcoded_res}", flush=True)
+            print(f"Processing... {data['res']}", flush=True)
+            transcode_video(local_input, transcoded_local_output, transcoded_res)
+            local_input = transcoded_local_output
+            # 5. UPLOADING
+            # link = upload_file(output_bucket, transcoded_file_key, transcoded_local_output)
+            # asset_entry[data['res']] = link
+            # subprocess.run(['rm', transcoded_local_output])
+        # 6. SAVE TO DB
+        # saveLinksToDB(asset_table, aid, asset_entry)
+    except Exception as e:
+        # setStatus(asset_table, aid, "failed")
+        print("ERROR Is => ", e, flush=True)
+        print("ERROR Is => ", e)
+    finally:
+        return
+        # 7. DELETE TEMP FILE
+        deleteTempFile(input_bucket, file_key)
+        # 8. INCREMENT COUNTER
+        redis_client.incr('task-limit')
+        # 9. ENDPOINT HIT
+        triggerNextTask(trigger_endpoint_url)
+        
 
 if __name__ == '__main__':
     main()

@@ -4,10 +4,12 @@ import boto3
 import json
 import redis
 import requests
+from PIL import Image
 
 
 # Configuration for standard video resolutions
 video_config = [
+    {'width': 3840, 'height': 2160, 'pixels': 8294400, 'res': '4K'},
     {'res': '1080p', 'width': 1920, 'height': 1080, 'pixels': 1920 * 1080},
     {'res': '720p', 'width': 1280, 'height': 720, 'pixels': 1280 * 720},
     {'res': '480p', 'width': 854, 'height': 480, 'pixels': 854 * 480},
@@ -21,18 +23,29 @@ def classify_resolution(pixels):
     return 'custom'
 
 def get_video_resolution(input_file):
+    """
+    Extracts a frame from the video, checks its resolution, and classifies the resolution.
+    """
+    # Step A: Extract the first frame
+    output_file = 'temp_frame.jpg'
     command = [
-        'ffprobe', '-v', 'error', '-select_streams', 'v:0',
-        '-show_entries', 'stream=width,height',
-        '-of', 'json', input_file
+        'ffmpeg', '-i', input_file, '-vframes', '1', '-q:v', '2', output_file
     ]
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    resolution_data = json.loads(result.stdout)
-    width = resolution_data['streams'][0]['width']
-    height = resolution_data['streams'][0]['height']
+    subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    # Step B: Determine dimensions of the extracted frame
+    try:
+        with Image.open(output_file) as img:
+            width, height = img.size
+    finally:
+        os.remove(output_file)  # Clean up the extracted frame
+
+    # Step C: Calculate pixels and classify resolution
     pixels = width * height
     resolution_label = classify_resolution(pixels)
-    return width, height, pixels, resolution_label
+    isPotrait = height > width
+
+    return width, height, pixels, resolution_label, isPotrait
 
 
 def transcode_video(input_file, output_file, resolution):
@@ -46,6 +59,7 @@ def transcode_video(input_file, output_file, resolution):
     ]
     subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print(f"TRANSCODED => {input_file} to {output_file}", flush=True)
+
 
 def download_file(bucket_name, file_key, local_filename):
     s3 = boto3.client('s3')
@@ -140,7 +154,7 @@ def main():
         setStatus(asset_table, aid, "processing")
 
         # 2. GET VIDEO DATA
-        width, height, pixels, resolution_label = get_video_resolution(local_input)
+        width, height, pixels, resolution_label, isPotrait = get_video_resolution(local_input)
         print(f"Original resolution: {width}x{height} classified as {resolution_label}", flush=True)
 
         # 3. COPY ORIGINAL FILES
@@ -162,17 +176,24 @@ def main():
             # 4. TRANSCODING
             transcoded_local_output = local_output.replace(mime, f"_{data['res']}{mime}")
             transcoded_file_key = f"{output_dir}{uid}/{aid}_{data['res']}{mime}"
+            transcoded_res = f"{data['width']}x{data['height']}"
+            if(isPotrait):
+                transcoded_res = f"{data['height']}x{data['width']}"
+            print(f"Transcoding... {transcoded_local_output}", flush=True)
+            print(f"Transcoding... {transcoded_res}", flush=True)
             print(f"Processing... {data['res']}", flush=True)
-            transcode_video(local_input, transcoded_local_output, f"{data['width']}x{data['height']}")
+            transcode_video(local_input, transcoded_local_output, transcoded_res)
+            local_input = transcoded_local_output
             # 5. UPLOADING
             link = upload_file(output_bucket, transcoded_file_key, transcoded_local_output)
             asset_entry[data['res']] = link
             subprocess.run(['rm', transcoded_local_output])
         # 6. SAVE TO DB
         saveLinksToDB(asset_table, aid, asset_entry)
-    except(Exception) as e:
+    except Exception as e:
         setStatus(asset_table, aid, "failed")
-        print(e, flush=True)
+        print("ERROR Is => ", e, flush=True)
+        print("ERROR Is => ", e)
     finally:
         # 7. DELETE TEMP FILE
         deleteTempFile(input_bucket, file_key)
