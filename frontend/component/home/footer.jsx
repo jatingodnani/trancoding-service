@@ -33,13 +33,21 @@ function Footer() {
           >
             Kartik
           </a>{" "}
-          &{" "}
+          ,{" "}
           <a
             href="https://www.linkedin.com/in/jatin-godnani-7a66ba224/"
             target="_blank"
             className="text-white"
           >
-            Jatin
+            Jatin Godnani
+          </a>{" "}
+          ,{" "}
+          <a href="#" target="_blank" className="text-white">
+            Shubham pandey
+          </a>{" "}
+          &{" "}
+          <a href="#" target="_blank" className="text-white">
+            Jatin Mittal
           </a>
         </div>
       </div>
